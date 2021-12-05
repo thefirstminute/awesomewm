@@ -1,2 +1,4 @@
 # awesomewm
-a brutal awesome wm config.
+### a brutal awesome wm config.
+
+I recommend not using this.
