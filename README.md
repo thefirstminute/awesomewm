@@ -1,11 +1,13 @@
 # awesomewm
 ## a brutal awesome wm config.
 
-I recommend not using this.
+I recommend not doing this.
 
 ### Install:
 ```
-mkdir ~/.config/awesome
+sudo apt install awesome awesome-extra
+
+cd ~/.config/awesome
 
 gh repo clone thefirstminute/awesomewm
 
