@@ -8,20 +8,11 @@ I still recommend against doing this.
 sudo apt install awesome awesome-extra
 ```
 ```
-cd ~/.config/awesome
+mkdir ~/.config/awesome; cd ~/.config/awesome
 ```
 ```
 gh repo clone thefirstminute/awesomewm
 ```
 ```
-cd awesomewm
-```
-```
-mv * ../
-```
-```
-cd ..
-```
-```
-rm -r awesomewm
+cd awesomewm && mv * ../ && cd .. && rm -r awesomewm
 ```
