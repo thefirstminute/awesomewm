@@ -16,3 +16,6 @@ gh repo clone thefirstminute/awesomewm
 ```
 cd awesomewm && mv * ../ && cd .. && rm -r awesomewm
 ```
+```
+chmod 755 scripts/*
+```
