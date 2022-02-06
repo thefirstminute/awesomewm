@@ -11,10 +11,13 @@ sudo apt install awesome awesome-extra
 mkdir ~/.config/awesome; cd ~/.config/awesome
 ```
 ```
-gh repo clone thefirstminute/awesomewm
+git clone https://github.com/thefirstminute/awesomewm/
 ```
 ```
-cd awesomewm && mv * ../ && cd .. && rm -r awesomewm
+mv -i awesomewm/* .
+```
+```
+sudo rm -r awesomewm
 ```
 ```
 chmod 755 scripts/*
