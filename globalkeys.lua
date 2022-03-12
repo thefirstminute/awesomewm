@@ -15,12 +15,9 @@ local globalkeys = gears.table.join(
   -- Layout manipulation
   awful.key({ modkey,           }, "\\", function () awful.layout.inc( 1)     end,
             {description = "select next", group = "layout"}),
-  -- awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)     end,
-  --           {description = "select previous", group = "layout"}),
 
   -- Getting Around
   -- {{{
-
   -- got to previous tag
   awful.key({ modkey,           }, "Tab", awful.tag.history.restore,
     {description = "go back", group = "tag"}),
@@ -51,23 +48,36 @@ local globalkeys = gears.table.join(
   awful.key({ modkey, }, "/",      hotkeys_popup.show_help,
     {description = "show help", group="awesome"}),
 
-  awful.key({ modkey, }, "c", function () awful.util.spawn( "conky-toggle" ) end,
+  -- different web browser based on tag
+  awful.key({ modkey,  }, "b", function()
+      local t = awful.screen.focused().selected_tag
+      if t.index == 1 then awful.spawn("chromium")
+      elseif t.index == 3 then awful.spawn("firefox")
+      elseif t.index == 4 then awful.spawn("brave-browser")
+      elseif t.index == 5 then awful.spawn("vivaldi-stable")
+      elseif t.index == 8 then awful.spawn("LibreWolf")
+      else awful.spawn("brave-browser") end
+  end, {description = "open default tag program", group = "tag"}),
+
+  awful.key({ modkey, }, "c", function () awful.spawn( "conky-toggle" ) end,
     {description = "conky-toggle", group = "super"}),
 
-  awful.key({ modkey, }, "m", function () awful.util.spawn( "xdotool mousemove 0 0"  ) end,
+  awful.key({ modkey, }, "f", function () awful.spawn.with_shell( "dolphin -stylesheet ~/.config/KDE/dolphin_style.qss" ) end,
+    {description = "Dolphin File Manager" , group = "launch" }),
+
+  awful.key({ modkey, }, "m", function () awful.spawn( "xdotool mousemove 0 0"  ) end,
     {description = "move mouse to top corner", group = "super"}),
 
   awful.key({ modkey, }, "r", function() awful.screen.focused().mypromptbox:run() end,
     {description = "run prompt", group = "launch"}),
 
-  awful.key({ modkey, }, "s", function () awful.util.spawn( "rofi -show drun" ) end,
+  awful.key({ modkey, }, "s", function () awful.spawn.with_shell( ". ~/.config/rofi/scripts/rofi-apps" ) end,
     {description = "rofi" , group = "launch" }),
 
-  awful.key({ modkey, }, "Space", function () awful.util.spawn( "rofi -show drun" ) end,
+  awful.key({ modkey, }, " ", function () awful.spawn( "rofi -show combi drun,window" ) end,
     {description = "rofi" , group = "launch" }),
 
-
-  awful.key({ modkey, }, "w", function () awful.util.spawn( "rofi -show window" ) end,
+  awful.key({ modkey, }, "w", function () awful.spawn( "rofi -show window" ) end,
     {description = "rofi" , group = "launch" }),
 
   -- Launching Stuff }}}
@@ -100,29 +110,22 @@ local globalkeys = gears.table.join(
 
   -- {{{ Mod+Alt+ (mostly launching stuff)
 
-  awful.key({ modkey, altkey }, "s", function () awful.util.spawn( "brave-browser www.duckduckgo.com" ) end,
+  awful.key({ modkey, altkey }, "s", function () awful.spawn( "brave-browser www.duckduckgo.com" ) end,
     {description = "brave browser search ddg" , group = "launch" }),
 
-  -- awful.key({ modkey, altkey }, "Return", function () awful.spawn( terminal.." -e fish" ) end,
-  --   {description = "terminal with fish shell", group = "launch"}),
+  awful.key({ modkey, altkey }, "Return", function () awful.spawn( terminal.." -e fish" ) end,
+    {description = "terminal with fish shell", group = "launch"}),
 
-  awful.key({ modkey, altkey }, "t", function () awful.util.spawn( "flatpak run org.telegram.desktop" ) end,
+  awful.key({ modkey, altkey }, "t", function () awful.spawn( "flatpak run org.telegram.desktop" ) end,
     {description = "telegram" , group = "launch" }),
 
-  awful.key({ modkey, altkey }, "b", function()
-      local t = awful.screen.focused().selected_tag
-      if t.index == 1 then awful.util.spawn("chromium")
-      elseif t.index == 3 then awful.util.spawn("vivaldi-stable")
-      elseif t.index == 4 then awful.util.spawn("firefox")
-      else awful.util.spawn("LibreWolf") end
-  end, {description = "open default tag program", group = "tag"}),
 
   -- Super+Alt+ }}}
 
   -- {{{ Alt+Control+ (mostly system controls)
 
   --I usually use this terminal for system commands...
-  awful.key({ altkey, "Control" }, "Return", function () awful.util.spawn( "xfce4-terminal --drop-down" ) end,
+  awful.key({ altkey, "Control" }, "Return", function () awful.spawn( "xfce4-terminal --drop-down" ) end,
     {description = "dropdown terminal" , group = "specialkeys"}),
 
   awful.key({ altkey, "Control" }, "w", function () awful.spawn.with_shell( "feh --randomize --bg-scale --no-xinerama ~/.config/awesome/wallpapers/*"  ) end,
@@ -131,18 +134,8 @@ local globalkeys = gears.table.join(
   awful.key({ altkey, "Control" }, "r", awesome.restart,
     {description = "reload awesome", group = "System"}),
 
-  awful.key({ altkey, "Control" }, "s",  function () awful.spawn.with_shell( 'echo "are you sure?" | rofi -dmenu "systemctl suspend"' ) end,
-    {description = "Suspend", group = "System"}),
-
-  -- awful.key({ altkey, "Control" }, "s",  function ()
-  --       if awful.util.pread(Confirm):sub(1, 3) == "Yes" then
-  --         awful.spawn.with_shell( 'systemctl suspend' )
-  --       end
-  --     end,
-  --     {description = "sleep", group = "System"}),
-
-  awful.key({ altkey, "Control" }, "l",  function () awesome.quit() end,
-    {description = "quit awesome", group = "System"}),
+  awful.key({ altkey, "Control" }, "l", function () awful.spawn.with_shell( ". ~/.config/rofi/scripts/rofi-power" ) end,
+    {description = "Log-Out" , group = "System" }),
 
   -- Show/Hide Wibox
   awful.key({ altkey, "Control" }, "b", function ()
@@ -155,21 +148,21 @@ local globalkeys = gears.table.join(
   end,
   {description = "toggle wibox", group = "System"}),
 
-  -- Change gaps
-  awful.key({ altkey, "Control" }, "[", function () lain.util.useless_gaps_resize(1) end,
-    {description = "increment useless gaps", group = "System"}),
-  awful.key({ altkey, "Control" }, "]", function () lain.util.useless_gaps_resize(-1) end,
-    {description = "decrement useless gaps", group = "System"}),
+  -- -- Change gaps
+  -- awful.key({ altkey, "Control" }, "[", function () lain.useless_gaps_resize(1) end,
+  --   {description = "increment useless gaps", group = "System"}),
+  -- awful.key({ altkey, "Control" }, "]", function () lain.useless_gaps_resize(-1) end,
+  --   {description = "decrement useless gaps", group = "System"}),
 
 
   -- Brightness {{{
   awful.key({ altkey, "Control" }, "Right", function() awful.spawn.with_shell("~/.config/awesome/scripts/bright-up") end,
-      {description = "Brightness Up", group = "alt+ctrl"}),
+      {description = "Brightness Up", group = "System"}),
   awful.key({ altkey, "Control" }, "Left", function() awful.spawn.with_shell("~/.config/awesome/scripts/bright-down") end,
-      {description = "Brightness Down", group = "alt+ctrl"}),
-  -- awful.key({ altkey, "Control" }, "Right", function () awful.util.spawn("xbacklight -inc 10") end,
+      {description = "Brightness Down", group = "System"}),
+  -- awful.key({ altkey, "Control" }, "Right", function () awful.spawn("xbacklight -inc 10") end,
   --     {description = "Brightness Up", group = "System"}),
-  -- awful.key({ altkey, "Control" }, "Left", function () awful.util.spawn("xbacklight -dec 10") end,
+  -- awful.key({ altkey, "Control" }, "Left", function () awful.spawn("xbacklight -dec 10") end,
   --     {description = "Brightness Down", group = "System"}),
 
   --}}}
@@ -177,19 +170,17 @@ local globalkeys = gears.table.join(
 
   -- Volume Controls {{{
   -- pactl seemed to go louder...
-  awful.key({ altkey, "Control" }, "Up", function () awful.util.spawn("amixer -D pulse sset Master 5%+", false) end,
-      {description = "Volume Up", group = "System"}),
-  awful.key({ altkey, "Control" }, "Down", function () awful.util.spawn("amixer -D pulse sset Master 10%-", false) end,
-      {description = "Volume Down", group = "System"}),
-  awful.key({ altkey, "Control" }, "v", function () awful.util.spawn("amixer -D pulse sset Master toggle", false) end,
+  -- awful.key({ altkey, "Control" }, "Up", function () awful.spawn("amixer -D pulse sset Master 5%+", false) end,
+  --     {description = "Volume Up", group = "System"}),
+  -- awful.key({ altkey, "Control" }, "Down", function () awful.spawn("amixer -D pulse sset Master 10%-", false) end,
+  --     {description = "Volume Down", group = "System"}),
+
+  awful.key({ altkey, "Control" }, "v", function () awful.spawn("amixer -D pulse sset Master toggle", false) end,
       {description = "Volume Toggle", group = "System"}),
-
-  awful.key({ modkey, "Control" }, "Up", function () awful.util.spawn("pactl -- set-sink-volume 0 +5%", false) end,
+  awful.key({ altkey, "Control" }, "Up", function () awful.spawn("pactl -- set-sink-volume 0 +5%", false) end,
       {description = "Volume Up", group = "System"}),
-  awful.key({ modkey, "Control" }, "Down", function () awful.util.spawn("pactl -- set-sink-volume 0 -5%", false) end,
+  awful.key({ altkey, "Control" }, "Down", function () awful.spawn("pactl -- set-sink-volume 0 -20%", false) end,
       {description = "Volume Down", group = "System"}),
-
-
 
     -- }}}
 
@@ -237,19 +228,19 @@ local globalkeys = gears.table.join(
 
   -- {{{ Laptop & Special Buttons:
 
-  awful.key({ }, "Print", function () awful.util.spawn( "xfce4-screenshooter" ) end,
+  awful.key({ }, "Print", function () awful.spawn( "xfce4-screenshooter" ) end,
       {description = "Xfce screenshot", group = "specialkeys"}),
 
-  awful.key({ }, "F2", function() menubar.show() end,
-    {description = "show the menubar", group = "specialkeys"}),
+  -- awful.key({ }, "F2", function() menubar.show() end,
+  --   {description = "show the menubar", group = "specialkeys"}),
 
-  -- awful.key({ "Shift" }, "F4", function () awful.util.spawn( browser1 ) end,
+  -- awful.key({ "Shift" }, "F4", function () awful.spawn( browser1 ) end,
   --   {description = browser1, group = "specialkeys"}),
-  -- awful.key({ "Shift" }, "F10", function () awful.util.spawn( "rofi -show drun -fullscreen" ) end,
+  -- awful.key({ "Shift" }, "F10", function () awful.spawn( "rofi -show drun -fullscreen" ) end,
   --   {description = "rofi fullscreen" , group = "function keys" }),
-  -- awful.key({ "Shift", }, "F11", function () awful.util.spawn( "rofi -show drun" ) end,
+  -- awful.key({ "Shift", }, "F11", function () awful.spawn( "rofi -show drun" ) end,
   --   {description = "rofi" , group = "function keys" }),
-  -- awful.key({ "Shift", }, "F12", function () awful.util.spawn( "Xfce4-terminal --drop-down" ) end,
+  -- awful.key({ "Shift", }, "F12", function () awful.spawn( "Xfce4-terminal --drop-down" ) end,
   --   {description = "dropdown terminal" , group = "specialkeys"}),
 
   -- Brightness
@@ -259,9 +250,13 @@ local globalkeys = gears.table.join(
             -- {description = "-10%", group = "specialkeys"}),
 
 
-  awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer -D pulse sset Master 5%+", false) end),
-  awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer -D pulse sset Master 10%-", false) end),
-  awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -D pulse sset Master toggle", false) end),
+  -- awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("amixer -D pulse sset Master 5%+", false) end),
+  -- awful.key({ }, "XF86AudioLowerVolume", function () awful.spawn("amixer -D pulse sset Master 10%-", false) end),
+  awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl -- set-sink-volume 0 +5%", false) end),
+  awful.key({ }, "XF86AudioLowerVolume", function () awful.spawn("pactl -- set-sink-volume 0 -20%", false) end),
+  awful.key({ }, "XF86AudioMute", function () awful.spawn("amixer -D pulse sset Master toggle", false) end),
+
+  awful.key({ }, "XF86Calculator", function () awful.spawn( "gnome-calculator" ) end),
 
   --  END Laptop & Special Buttons }}}
 
@@ -281,8 +276,11 @@ local globalkeys = gears.table.join(
   awful.key({ modkey, altkey, "Control" }, "t", function () awful.spawn.with_shell( "~/.config/mybin/touchscreen/reset_matrix.sh"  ) end,
     {description = "touchscreen matrix", group = "System"}),
 
-  awful.key({ modkey, altkey, "Control" }, "t", function () awful.spawn.with_shell( "~/.config/mybin/touchscreen/toggle_touch.sh"  ) end,
-    {description = "touchscreen matrix", group = "System"}),
+  awful.key({ modkey, altkey }, "t", function () awful.spawn.with_shell( "~/.config/mybin/touchscreen/toggle_touch.sh"  ) end,
+    {description = "touchscreen toggle", group = "System"}),
+
+  awful.key({ altkey, "Control" }, "t", function () awful.spawn.with_shell( "~/.config/mybin/toggle-touchpad.sh"  ) end,
+    {description = "touchpad toggle", group = "System"}),
 
   awful.key({ altkey, "Control" }, "m", function () awful.spawn.with_shell( "~/.config/mybin/monitor-setup.sh"  ) end,
     {description = "monitor setup - laptop/desktop mode", group = "System"}),
@@ -290,13 +288,13 @@ local globalkeys = gears.table.join(
   -- }}}
 
   -- Tests & Probations {{{
-  awful.key({ modkey, "Control" }, ",", function ()
-        awful.menu({ items = { { "Cancel", function() do end end },
-        { "Quit", function() awesome.quit() end } }
-      })
 
-    end,
-    {description = "FAAAARKS!", group = "awesome"}),
+  awful.key({ modkey, "Control" }, ",", function ()
+      awful.menu({ items = { { "Cancel", function() do end end },
+      { "Quit", function() awesome.quit() end } }
+    })
+  end,
+  {description = "FAAAARKS!", group = "awesome"}),
 
   -- My debugger message to show random whatevers
   -- keep this last because no ","!!!
@@ -307,11 +305,11 @@ local globalkeys = gears.table.join(
 
         -- text = awful.spawn.with_shell ("~/.config/mybin/fuzzy-clock.sh", 60),
         -- naughty.notify { text = "Time: "..awful.spawn.easy_async(terminal.." -e ./.config/mybin/fuzzy-clock.sh") }
-        -- naughty.notify { text = "Time: "..awful.util.spawn(" ./.config/mybin/fuzzy-clock.sh") }
+        -- naughty.notify { text = "Time: "..awful.spawn(" ./.config/mybin/fuzzy-clock.sh") }
         -- naughty.notify { text = "Time: "..awful.spawn.with_line_callback(terminal.." ./.config/mybin/fuzzy-clock.sh") }
-        -- naughty.notify { text = "Time: "..awful.util.spawn("~/.config/mybin/fuzzy-clock.sh") }
         -- naughty.notify { text = "Time: "..awful.spawn("~/.config/mybin/fuzzy-clock.sh") }
-        -- naughty.notify { text = "Time: "..awful.util.spawn("~/.config/mybin/fuzzy-clock.sh") }
+        -- naughty.notify { text = "Time: "..awful.spawn("~/.config/mybin/fuzzy-clock.sh") }
+        -- naughty.notify { text = "Time: "..awful.spawn("~/.config/mybin/fuzzy-clock.sh") }
         -- naughty.notify { text = "Time: "..awful.spawn.with_shell ("$HOME/.config/mybin/fuzzy-clock.sh") }
       end
       )
