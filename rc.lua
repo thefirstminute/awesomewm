@@ -25,7 +25,6 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 -- menu
 local menubar       = require("menubar")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
-
 -- }}}
 
 -- Error handling   ₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪
@@ -76,11 +75,13 @@ Cwin      = "#8aa234"
 beautiful.init(gears.filesystem.get_configuration_dir() .. "theme.lua")
 
 local modkey = "Mod4" -- set in globalkeys.lua too!
-local altkey = "Mod1" -- set in globalkeys.lua too!
+-- local altkey = "Mod1" -- set in globalkeys.lua too!
 
 local terminal = "kitty"
 local editor = os.getenv("EDITOR") or "nvim"
 local editor_cmd = terminal .. " -e " .. editor
+
+local browserProps = {switchtotag=false, floating=false, maximized=false}
 
 MyTags={ "y", "u", "i", "o", "p", "[", "]", ";", "'" }
 
@@ -102,6 +103,7 @@ awful.layout.layouts = {
   -- awful.layout.suit.corner.ne,
   -- awful.layout.suit.corner.sw,
   -- awful.layout.suit.corner.se,
+  awful.layout.suit.floating,
 }
 -- }}}
 
@@ -124,7 +126,7 @@ end
 
 -- {{{ Menu
 -- Create a launcher widget and a main menu
-myawesomemenu = {
+local myawesomemenu = {
    { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
    { "manual", terminal .. " -e man awesome" },
    { "edit config", editor_cmd .. " " .. awesome.conffile },
@@ -150,7 +152,7 @@ else
 end
 
 
-mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
+local mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
 
 -- Menubar configuration
@@ -235,7 +237,7 @@ This Works straight in the wibar: awful.widget.watch('bash -c "free -h | awk \'/
 
 -- SEPARATORS:   -----------------------------------------------------
 -- {{{
-local PIPE  = wibox.widget.textbox('|')
+-- local PIPE  = wibox.widget.textbox('|')
 local SPACE = wibox.widget.textbox(' ')
 -- }}}
 
@@ -250,7 +252,7 @@ local time_widget = wibox.widget.background()
 time_widget:set_widget(mytime)
 
 -- modded from: https://pavelmakhov.com/2017/03/calendar-widget-for-awesome
-function cal_notify(cal_pref, pref_screen)
+local function cal_notify(cal_pref, pref_screen)
 	if cal_notification == nil then
 		awful.spawn.easy_async([[bash -c "]]..cal_pref..[[ | head -n -1 | sed 's/_.\(.\)/+\1-/g;s/  $//g;/2021$/d'"]],
 		function(stdout, stderr, reason, exit_code)
@@ -500,7 +502,7 @@ root.keys(globalkeys)
 -- {{{
 clientkeys = gears.table.join(
 
-awful.key({ modkey, "="   }, "f",
+awful.key({ modkey, }, "=",
 function (c)
   c.fullscreen = not c.fullscreen
   c:raise()
@@ -512,8 +514,17 @@ awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                
 awful.key({ modkey,           }, "q",      function (c) c:kill()                         end,
 {description = "close", group = "client"}),
 
-awful.key({ modkey, "Shift"   }, "f",  awful.client.floating.toggle                     ,
+awful.key({ modkey, }, "f",  awful.client.floating.toggle                     ,
 {description = "toggle floating", group = "client"}),
+
+-- force tiling to work:
+awful.key({ modkey, "Shift" }, "f",
+  function (c)
+    c.maximized_horizontal = false
+    c.maximized_vertical   = false
+    c.maximized            = false
+    c.floating             = false
+  end),
 
 awful.key({ modkey, "Shift"   }, "Return", function (c) c:swap(awful.client.getmaster()) end,
 {description = "move to master", group = "client"}),
@@ -594,9 +605,6 @@ awful.rules.rules = {
   { rule_any = {type = { "normal", "dialog" } }, properties = { titlebars_enabled = false } },
 
   -- rules for specific applications
-  { rule = { class = "Chromium" },
-      properties = { screen = Monitor1, tag = "y", switchtotag = true } },
-
   { rule = { class = "TelegramDesktop" },
       properties = { screen = Monitor2, tag = "'", switchtotag = false } },
 
@@ -604,7 +612,33 @@ awful.rules.rules = {
       properties = { screen = Monitor2, tag = "'", switchtotag = false } },
 
   { rule = { class = "VirtualBox Machine" },
-      properties = { screen = Monitor2, tag = "[", switchtotag = true, fullscreen = false } },
+      properties = { screen = Monitor2, tag = ";", switchtotag = true, fullscreen = false } },
+
+  -- browsers:
+  -- {{{
+  { rule = { class = "Chromium" },
+      properties = { screen = Monitor1, tag = "y", switchtotag = true, floating = false, maximized = false } },
+
+  { rule = { class = "Vivaldi-stable" },
+      properties = { screen = Monitor1, tag = "p", switchtotag = true, floating = false, maximized = false} },
+
+  { rule = { class = "waterfox-g3" },
+      properties = { screen = Monitor3, tag = "[", switchtotag = false, floating = false, maximized = false } },
+
+  -- firefox
+  { rule = { class = "Firefox" },
+      properties = { screen = Monitor1, tag = "i", switchtotag = true, floating = false, maximized = false },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end },
+  -- firefox downloads:
+  { rule = { class = "Firefox", name = "Library" },
+      properties = { screen = Monitor3, floating = true },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end },
+  -- }}}
+
 
   -- Floating clients.
   { rule_any = {
@@ -615,31 +649,37 @@ awful.rules.rules = {
     },
     class = {
       "Arandr",
-      "com.liberty.jaxx",
       "Blueman-manager",
+      "com.liberty.jaxx",
       "Font-manager",
+      "File-roller",
       "Gpick",
       "Imagewriter",
       "Kruler",
+      "kruler",
+      "Nemo",
       "MessageWin",  -- kalarm.
       "Peek",
       "Sxiv",
       "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
+      "veromix",
       "VirtualBox Manager",
       "Wpa_gui",
-      "veromix",
-      "xtightvncviewer"},
-      -- Note that the name property shown in xprop might be set slightly after creation of the client
-      -- and the name shown there might not match defined rules here.
-      name = {
-        "Event Tester",  -- xev.
-      },
-      role = {
-        "AlarmWindow",  -- Thunderbird's calendar.
-        "ConfigManager",  -- Thunderbird's about:config.
-        "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
-      }
-    }, properties = { floating = true }},
+      "xtightvncviewer"
+    },
+    -- Note that the name property shown in xprop might be set slightly after creation of the client
+    -- and the name shown there might not match defined rules here.
+    name = {
+      "Event Tester",  -- xev.
+      "File Upload",  -- xev.
+    },
+    role = {
+      "AlarmWindow",  -- Thunderbird's calendar.
+      "ConfigManager",  -- Thunderbird's about:config.
+      "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+      "Dialog",
+    }
+  }, properties = { floating = true }},
 
   -- Brave popup ## FIXME not working???
   -- make it eventually run a random countdown then close it automatically
@@ -657,8 +697,6 @@ awful.rules.rules = {
       "Galculator",
       "Gnome-calculator",
       "Gnome-calendar",
-      "Nemo",
-      "kruler",
       "Polkit-gnome-authentication-agent-1",
       "Xfce4-terminal"
     },
@@ -741,6 +779,7 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 -- Autostart applications
+-- awful.spawn.with_shell("xfce4-power-manager")
 awful.spawn.with_shell("~/.config/awesome/scripts/autostart.sh")
 
 -- vim:ft=lua:ts=2:sw=2:sts=2:tw=80:et
