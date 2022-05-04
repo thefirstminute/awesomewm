@@ -62,9 +62,6 @@ local globalkeys = gears.table.join(
   awful.key({ modkey, }, "c", function () awful.spawn( "conky-toggle" ) end,
     {description = "conky-toggle", group = "super"}),
 
-  awful.key({ modkey, }, "f", function () awful.spawn.with_shell( "dolphin -stylesheet ~/.config/KDE/dolphin_style.qss" ) end,
-    {description = "Dolphin File Manager" , group = "launch" }),
-
   awful.key({ modkey, }, "m", function () awful.spawn( "xdotool mousemove 0 0"  ) end,
     {description = "move mouse to top corner", group = "super"}),
 
@@ -109,6 +106,9 @@ local globalkeys = gears.table.join(
   -- }}}
 
   -- {{{ Mod+Alt+ (mostly launching stuff)
+
+  awful.key({ modkey, altkey }, "f", function () awful.spawn.with_shell( "dolphin -stylesheet ~/.config/KDE/dolphin_style.qss" ) end,
+    {description = "Dolphin File Manager" , group = "launch" }),
 
   awful.key({ modkey, altkey }, "s", function () awful.spawn( "brave-browser www.duckduckgo.com" ) end,
     {description = "brave browser search ddg" , group = "launch" }),
@@ -203,6 +203,11 @@ local globalkeys = gears.table.join(
   awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incmwfact(-0.05)          end,
     {description = "decrease master width factor", group = "layout"}),
 
+    -- FIX:
+  -- awful.key({ modkey, "Shift"   }, "j",     function () awful.client.cycle()          end, 
+  --   {description = "move client clockwise", group = "layout"}),
+  -- awful.key({ modkey, "Shift"   }, "k",     function () awful.client.cycle()          end,
+  --   {description = "move client counterwise", group = "layout"}),
 
   awful.key({ modkey, "Shift"   }, "+",     function () awful.tag.incnmaster( 1, nil, true) end,
     {description = "increase the number of master clients", group = "layout"}),
@@ -233,7 +238,6 @@ local globalkeys = gears.table.join(
 
   -- awful.key({ }, "F2", function() menubar.show() end,
   --   {description = "show the menubar", group = "specialkeys"}),
-
   -- awful.key({ "Shift" }, "F4", function () awful.spawn( browser1 ) end,
   --   {description = browser1, group = "specialkeys"}),
   -- awful.key({ "Shift" }, "F10", function () awful.spawn( "rofi -show drun -fullscreen" ) end,
@@ -257,6 +261,13 @@ local globalkeys = gears.table.join(
   awful.key({ }, "XF86AudioMute", function () awful.spawn("amixer -D pulse sset Master toggle", false) end),
 
   awful.key({ }, "XF86Calculator", function () awful.spawn( "gnome-calculator" ) end),
+
+  awful.key({ modkey }, "XF86Favorites", function () awful.spawn.with_shell( "~/Applications/waterfox-g3-2.7-48.10.Build48.14.glibc2.17-x86_64.AppImage" ) end),
+  awful.key({ }, "XF86Favorites", function () awful.spawn.with_shell( "~/.config/mybin/close-waterfox.sh" ) end),
+
+
+  awful.key({ }, "XF86Back", function () awful.spawn.with_shell( "~/.config/mybin/click-left" ) end),
+  awful.key({ }, "XF86Forward", function () awful.spawn.with_shell( "~/.config/mybin/click-right" ) end),
 
   --  END Laptop & Special Buttons }}}
 
@@ -431,8 +442,9 @@ for i = 1, #MyTags do
 end
 -- END Tag jumping }}}
 
+
 -- Set Keybindings
-root.keys(globalkeys)
+-- root.keys(globalkeys)
 
 return globalkeys
 

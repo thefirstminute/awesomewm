@@ -94,7 +94,7 @@ awful.layout.layouts = {
   awful.layout.suit.tile.bottom,
   -- awful.layout.suit.tile.top,
   -- awful.layout.suit.fair,
-  -- awful.layout.suit.fair.horizontal,
+  awful.layout.suit.fair.horizontal,
   -- awful.layout.suit.max,
   awful.layout.suit.max.fullscreen,
   -- awful.layout.suit.spiral,
@@ -116,7 +116,7 @@ if ScreenCount > 1 then
   Monitor3="eDP-1"
   -- naughty.notify { text = "Monitor Count: "..screen.count().." Monitor1: ".. Monitor1 }
 else
-  LayoutMode = "lapttop"
+  LayoutMode = "laptop"
   Monitor1="eDP-1"
   Monitor2="eDP-1"
   Monitor3="eDP-1"
@@ -175,17 +175,35 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 -- screen.connect_signal("property::geometry", set_wallpaper)
 
--- No borders when rearranging only 1 non-floating or maximized client
-screen.connect_signal("arrange", function (s)
-  local only_one = #s.tiled_clients == 1
-  for _, c in pairs(s.clients) do
-    if only_one and not c.floating or c.maximized then
-      c.border_width = 2
-    else
-      c.border_width = beautiful.border_width
-    end
-  end
-end)
+-- -- No borders when rearranging only 1 non-floating or maximized client
+-- BUG: this mofo wrecks my full screen:
+-- screen.connect_signal("arrange", function (s)
+--   local only_one = #s.tiled_clients == 1
+--   for _, c in pairs(s.clients) do
+--     if only_one then
+--       c.border_width = 0
+--     elseif c.maximized or c.fullscreen then
+--       c.border_width = 0
+--     else
+--       c.border_width = beautiful.border_width
+--     end
+--   end
+-- end)
+
+
+-- TODO: TRY ME?
+-- -- https://github.com/awesomeWM/awesome/issues/1607
+-- client.connect_signal("property::fullscreen", function(c)
+--   if c.fullscreen then
+--     gears.timer.delayed_call(function()
+--       if c.valid then
+--         c:geometry(c.screen.geometry)
+--       end
+--     end)
+--   end
+-- end)
+
+
 -- }}}
 
 -- {{{ Wibar Stuff
@@ -500,82 +518,81 @@ root.keys(globalkeys)
 
 -- ClientKeys:   ₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪₪
 -- {{{
-clientkeys = gears.table.join(
-
-awful.key({ modkey, }, "=",
-function (c)
-  c.fullscreen = not c.fullscreen
-  c:raise()
-end,
-{description = "toggle fullscreen", group = "client"}),
-
-awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
-{description = "close", group = "client"}),
-awful.key({ modkey,           }, "q",      function (c) c:kill()                         end,
-{description = "close", group = "client"}),
-
-awful.key({ modkey, }, "f",  awful.client.floating.toggle                     ,
-{description = "toggle floating", group = "client"}),
-
--- force tiling to work:
-awful.key({ modkey, "Shift" }, "f",
+local clientkeys = gears.table.join(
+  awful.key({ modkey, }, "=",
   function (c)
-    c.maximized_horizontal = false
-    c.maximized_vertical   = false
-    c.maximized            = false
-    c.floating             = false
-  end),
+    c.fullscreen = not c.fullscreen
+    c:raise()
+  end,
+  {description = "toggle fullscreen", group = "client"}),
 
-awful.key({ modkey, "Shift"   }, "Return", function (c) c:swap(awful.client.getmaster()) end,
-{description = "move to master", group = "client"}),
+  awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
+  {description = "close", group = "client"}),
+  awful.key({ modkey,           }, "q",      function (c) c:kill()                         end,
+  {description = "close", group = "client"}),
+  awful.key({ modkey,           }, "BackSpace",      function (c) c:kill()                         end,
+  {description = "close", group = "client"}),
 
-awful.key({ modkey, "Shift"   }, ".",      function (c) c:move_to_screen()               end,
-{description = "move to screen", group = "client"}),
+  awful.key({ modkey, }, "f",  awful.client.floating.toggle                     ,
+  {description = "toggle floating", group = "client"}),
 
-awful.key({ modkey, "Shift"   }, "t",      function (c) c.ontop = not c.ontop            end,
-{description = "toggle keep on top", group = "client"}),
+  -- force tiling to work:
+  awful.key({ modkey, "Shift" }, "f",
+    function (c)
+      c.maximized_horizontal = false
+      c.maximized_vertical   = false
+      c.maximized            = false
+      c.floating             = false
+    end),
 
-awful.key({ modkey, "Shift"   }, "-",
-function (c)
-  -- The client currently has the input focus, so it cannot be
-  -- minimized, since minimized clients can't have the focus.
-  c.minimized = true
-end ,
-{description = "minimize", group = "client"}),
+  awful.key({ modkey, "Shift"   }, "Return", function (c) c:swap(awful.client.getmaster()) end,
+  {description = "move to master", group = "client"}),
 
-awful.key({ modkey,           }, "-", function ()
-    local c = awful.client.restore()
-    -- Focus restored client
-    if c then
-      c:emit_signal(
-      "request::activate", "key.unminimize", {raise = true}
-      )
-    end
-  end, {description = "restore minimized", group = "client"}),
+  awful.key({ modkey, "Shift"   }, ".",      function (c) c:move_to_screen()               end,
+  {description = "move to screen", group = "client"}),
 
+  awful.key({ modkey, "Shift"   }, "t",      function (c) c.ontop = not c.ontop            end,
+  {description = "toggle keep on top", group = "client"}),
 
--- awful.key({ modkey, "Shift"   }, "v",
--- function (c)
---   c.maximized_vertical = not c.maximized_vertical
---   c:raise()
--- end ,
--- {description = "(un)maximize vertically", group = "client"}),
+  awful.key({ modkey, "Shift"   }, "-",
+  function (c)
+    -- The client currently has the input focus, so it cannot be
+    -- minimized, since minimized clients can't have the focus.
+    c.minimized = true
+  end ,
+  {description = "minimize", group = "client"}),
 
--- awful.key({ modkey, "Shift"   }, "m",
--- function (c)
---   c.maximized_horizontal = not c.maximized_horizontal
---   c:raise()
--- end ,
--- {description = "(un)maximize horizontally", group = "client"}),
-
-awful.key({ modkey, "Control" }, "m",
-function (c)
-  c.maximized = not c.maximized
-  c:raise()
-end ,
-{description = "(un)maximize", group = "client"})
+  awful.key({ modkey,           }, "-", function ()
+      local c = awful.client.restore()
+      -- Focus restored client
+      if c then
+        c:emit_signal(
+        "request::activate", "key.unminimize", {raise = true}
+        )
+      end
+    end, {description = "restore minimized", group = "client"}),
 
 
+  -- awful.key({ modkey, "Shift"   }, "v",
+  -- function (c)
+  --   c.maximized_vertical = not c.maximized_vertical
+  --   c:raise()
+  -- end ,
+  -- {description = "(un)maximize vertically", group = "client"}),
+
+  -- awful.key({ modkey, "Shift"   }, "m",
+  -- function (c)
+  --   c.maximized_horizontal = not c.maximized_horizontal
+  --   c:raise()
+  -- end ,
+  -- {description = "(un)maximize horizontally", group = "client"}),
+
+  awful.key({ modkey, "Control" }, "m",
+  function (c)
+    c.maximized = not c.maximized
+    c:raise()
+  end ,
+  {description = "(un)maximize", group = "client"})
 )
 
 -- }}}
@@ -603,42 +620,6 @@ awful.rules.rules = {
 
   -- titlebars
   { rule_any = {type = { "normal", "dialog" } }, properties = { titlebars_enabled = false } },
-
-  -- rules for specific applications
-  { rule = { class = "TelegramDesktop" },
-      properties = { screen = Monitor2, tag = "'", switchtotag = false } },
-
-  { rule = { class = "Skype" },
-      properties = { screen = Monitor2, tag = "'", switchtotag = false } },
-
-  { rule = { class = "VirtualBox Machine" },
-      properties = { screen = Monitor2, tag = ";", switchtotag = true, fullscreen = false } },
-
-  -- browsers:
-  -- {{{
-  { rule = { class = "Chromium" },
-      properties = { screen = Monitor1, tag = "y", switchtotag = true, floating = false, maximized = false } },
-
-  { rule = { class = "Vivaldi-stable" },
-      properties = { screen = Monitor1, tag = "p", switchtotag = true, floating = false, maximized = false} },
-
-  { rule = { class = "waterfox-g3" },
-      properties = { screen = Monitor3, tag = "[", switchtotag = false, floating = false, maximized = false } },
-
-  -- firefox
-  { rule = { class = "Firefox" },
-      properties = { screen = Monitor1, tag = "i", switchtotag = true, floating = false, maximized = false },
-      callback = function (c)
-        awful.placement.centered(c,nil)
-      end },
-  -- firefox downloads:
-  { rule = { class = "Firefox", name = "Library" },
-      properties = { screen = Monitor3, floating = true },
-      callback = function (c)
-        awful.placement.centered(c,nil)
-      end },
-  -- }}}
-
 
   -- Floating clients.
   { rule_any = {
@@ -677,6 +658,7 @@ awful.rules.rules = {
       "AlarmWindow",  -- Thunderbird's calendar.
       "ConfigManager",  -- Thunderbird's about:config.
       "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+      "Popup",        -- e.g. waterfox upgrade dialog
       "Dialog",
     }
   }, properties = { floating = true }},
@@ -708,7 +690,61 @@ awful.rules.rules = {
   properties = { screen = Monitor3, floating = true },
   callback = function (c)
     awful.placement.centered(c,nil)
-  end }
+  end },
+
+
+  -- rules for specific applications
+  { rule = { class = "TelegramDesktop" },
+      properties = { screen = Monitor1, tag = ";", switchtotag = false } },
+
+  { rule = { class = "Skype" },
+      properties = { screen = Monitor1, tag = "'", switchtotag = false } },
+
+  { rule = { class = "VirtualBox Machine" },
+      properties = { screen = Monitor2, tag = ";", switchtotag = false } },
+  { rule = { class = "VirtualBox Manager" },
+      properties = { screen = Monitor2, tag = "'", switchtotag = false } },
+
+  -- keep rofi on laptop monitor:
+  { rule = { class = "rofi" },
+      properties = { screen = Monitor3, switchtotag = true } },
+
+
+  -- browsers:
+  -- {{{
+  { rule = { class = "Chromium" },
+      properties = { screen = Monitor1, tag = "y", switchtotag = true, floating = false, maximized = false } },
+
+  { rule = { class = "Vivaldi-stable" },
+      properties = { screen = Monitor1, tag = "p", switchtotag = true, floating = false, maximized = false} },
+
+
+  -- firefox
+  { rule = { class = "Firefox" },
+      properties = { screen = Monitor1, tag = "i", switchtotag = true, floating = false, maximized = false },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end },
+  -- firefox downloads:
+  { rule = { class = "Firefox", name = "Library" },
+      properties = { screen = Monitor3, floating = true },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end },
+  -- firefox upload/file select:
+  { rule = { class = "Firefox", name = "File Upload" },
+      properties = { screen = Monitor3, floating = true, switchtotag = true },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end },
+
+  { rule = { class = "waterfox-g3" },
+      properties = { screen = Monitor3, tag = "[", switchtotag = false, maximized = false } }
+  -- NOTE: keep ^this^ one last, with no comma at the end
+
+  -- }}}
+
+
 
 }
 -- }}}
@@ -771,7 +807,7 @@ end)
 
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
-c:emit_signal("request::activate", "mouse_enter", {raise = false})
+  c:emit_signal("request::activate", "mouse_enter", {raise = false})
 end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
