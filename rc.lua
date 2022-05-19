@@ -700,6 +700,10 @@ awful.rules.rules = {
   { rule = { class = "Skype" },
       properties = { screen = Monitor1, tag = "'", switchtotag = false } },
 
+  -- Arduino editor:
+  { rule = { class = "processing-app-Base" },
+      properties = { screen = Monitor3, tag = "o", switchtotag = false } },
+
   { rule = { class = "VirtualBox Machine" },
       properties = { screen = Monitor2, tag = ";", switchtotag = false } },
   { rule = { class = "VirtualBox Manager" },

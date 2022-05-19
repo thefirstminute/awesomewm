@@ -1,5 +1,6 @@
 local gears         = require("gears")
 local awful         = require("awful")
+
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 
 local modkey = "Mod4"
@@ -22,10 +23,10 @@ local globalkeys = gears.table.join(
   awful.key({ modkey,           }, "Tab", awful.tag.history.restore,
     {description = "go back", group = "tag"}),
 
-  awful.key({ modkey, }, "Left",   awful.tag.viewprev,
-      {description = "view previous", group = "tag"}),
-  awful.key({ modkey, }, "Right",  awful.tag.viewnext,
-      {description = "view next", group = "tag"}),
+  -- awful.key({ modkey, }, "Left",   awful.tag.viewprev,
+  --     {description = "view previous", group = "tag"}),
+  -- awful.key({ modkey, }, "Right",  awful.tag.viewnext,
+  --     {description = "view next", group = "tag"}),
 
 
   -- Screen Focus
@@ -36,6 +37,92 @@ local globalkeys = gears.table.join(
 
 
   -- Getting Around }}}
+
+
+  -- Mouse Control
+  -- {{{
+
+    --clicks:
+  awful.key({ }, "XF86Back", function () awful.spawn.with_shell( "~/.config/mybin/click-left" ) end),
+  awful.key({ }, "XF86Forward", function () awful.spawn.with_shell( "~/.config/mybin/click-right" ) end),
+
+  awful.key({ modkey, }, "KP_Home", function () awful.spawn.with_shell( "~/.config/mybin/click-left" ) end),
+  awful.key({ modkey, }, "KP_Prior", function () awful.spawn.with_shell( "~/.config/mybin/click-right" ) end),
+
+  --moves:
+
+  -- KP_End
+  -- KP_Next
+  -- KP_Home
+  -- KP_Prior
+  -- KP_Begin
+  -- KP_Enter
+  -- KP_Add
+  -- KP_Subtract
+  -- KP_Multiply
+  -- KP_Divide
+
+  -- awful.key({ modkey, }, "m", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh tl"  ) end,
+  --   {description = "Move Mouse Top Left", group = "Mousey"}),
+
+  -- awful.key({ modkey, }, "m", function () awful.spawn( "xdotool mousemove 0 0"  ) end,
+  --   {description = "move mouse to top corner", group = "Mousey"}),
+  --
+  -- awful.key({ modkey, }, "KP_Begin", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh center"  ) end,
+  --   {description = "Move Mouse Begin", group = "Mousey"}),
+  --
+  -- awful.key({ modkey, }, "KP_Left", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Left"  ) end,
+  --   {description = "Move Mouse Left", group = "Mousey"}),
+  --
+  -- awful.key({ modkey, }, "KP_Left", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Left"  ) end,
+  --   {description = "Move Mouse Left", group = "Mousey"}),
+  --
+  -- awful.key({ modkey, }, "KP_Right", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Right"  ) end,
+  --   {description = "Move Mouse Right", group = "Mousey"}),
+  --
+  -- awful.key({ modkey, }, "KP_Up", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Up"  ) end,
+  --   {description = "Move Mouse Up", group = "Mousey"}),
+  --
+  -- awful.key({ modkey, }, "KP_Down", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Down"  ) end,
+  --   {description = "Move Mouse Down", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "y", function () awful.spawn( "xdotool mousemove 0 0"  ) end,
+    {description = "move mouse to top corner", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "n", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh center"  ) end,
+    {description = "Move Mouse Begin", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "h", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Left"  ) end,
+    {description = "Move Mouse Left", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "l", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Right"  ) end,
+    {description = "Move Mouse Right", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "k", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Up"  ) end,
+    {description = "Move Mouse Up", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "j", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh Down"  ) end,
+    {description = "Move Mouse Down", group = "Mousey"}),
+
+
+  awful.key({ modkey, altkey}, "BackSpace", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh bravead"  ) end,
+  {description = "Kill Brave Ad", group = "Mousey"}),
+
+  awful.key({ modkey, altkey}, "\\", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh no-waterfox-update"  ) end,
+  {description = "No WF Update!", group = "Mousey"}),
+
+  awful.key({ modkey, altkey }, "u", function () awful.spawn.with_shell( "~/.config/mybin/mouse-click.sh left" ) end),
+  awful.key({ modkey, altkey }, "i", function () awful.spawn.with_shell( "~/.config/mybin/mouse-click.sh middle" ) end),
+  awful.key({ modkey, altkey }, "o", function () awful.spawn.with_shell( "~/.config/mybin/mouse-click.sh right" ) end),
+
+  awful.key({ modkey, altkey }, ",", function () awful.spawn.with_shell( "~/.config/mybin/mouse-click.sh up" ) end),
+  awful.key({ modkey, altkey }, ".", function () awful.spawn.with_shell( "~/.config/mybin/mouse-click.sh down" ) end),
+
+
+    -- TODO: close brave ad and return mouse to previous location
+
+
+  -- }}}
 
 
   -- Launching Stuff:
@@ -61,9 +148,6 @@ local globalkeys = gears.table.join(
 
   awful.key({ modkey, }, "c", function () awful.spawn( "conky-toggle" ) end,
     {description = "conky-toggle", group = "super"}),
-
-  awful.key({ modkey, }, "m", function () awful.spawn( "xdotool mousemove 0 0"  ) end,
-    {description = "move mouse to top corner", group = "super"}),
 
   awful.key({ modkey, }, "r", function() awful.screen.focused().mypromptbox:run() end,
     {description = "run prompt", group = "launch"}),
@@ -266,8 +350,6 @@ local globalkeys = gears.table.join(
   awful.key({ }, "XF86Favorites", function () awful.spawn.with_shell( "~/.config/mybin/close-waterfox.sh" ) end),
 
 
-  awful.key({ }, "XF86Back", function () awful.spawn.with_shell( "~/.config/mybin/click-left" ) end),
-  awful.key({ }, "XF86Forward", function () awful.spawn.with_shell( "~/.config/mybin/click-right" ) end),
 
   --  END Laptop & Special Buttons }}}
 
@@ -300,12 +382,16 @@ local globalkeys = gears.table.join(
 
   -- Tests & Probations {{{
 
-  awful.key({ modkey, "Control" }, ",", function ()
-      awful.menu({ items = { { "Cancel", function() do end end },
-      { "Quit", function() awesome.quit() end } }
-    })
-  end,
-  {description = "FAAAARKS!", group = "awesome"}),
+  -- awful.key({ modkey, "Control" }, ",", function ()
+  --     awful.menu({ items = { { "Cancel", function() do end end },
+  --     { "Quit", function() awesome.quit() end } }
+  --   })
+  -- end,
+  -- {description = "FAAAARKS!", group = "awesome"}),
+
+  awful.key({ modkey }, "`", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh bravead"  ) end,
+    {description = "FAAAARKS!", group = "awesome"}),
+
 
   -- My debugger message to show random whatevers
   -- keep this last because no ","!!!
