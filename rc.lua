@@ -59,7 +59,7 @@ do
 -- {{{
 
 -- Themes define colours, icons, font and wallpapers.
-Wallpaper = "~/.config/awesome/wallpaper.jpg"
+Wallpaper = "~/.config/awesome/default.jpg"
 ThemeFont = "Hack Bold"
 Cmain     = "#5d90cd"
 Cdark     = "#191919"
@@ -77,7 +77,8 @@ beautiful.init(gears.filesystem.get_configuration_dir() .. "theme.lua")
 local modkey = "Mod4" -- set in globalkeys.lua too!
 -- local altkey = "Mod1" -- set in globalkeys.lua too!
 
-local terminal = "kitty"
+-- local terminal = "kitty"
+local terminal = "lxterminal"
 local editor = os.getenv("EDITOR") or "nvim"
 local editor_cmd = terminal .. " -e " .. editor
 
@@ -109,19 +110,53 @@ awful.layout.layouts = {
 
 -- Name monitors for spawns etc:
 ScreenCount = screen.count()
-if ScreenCount > 1 then
-  LayoutMode = "desktop"
-  Monitor1="DP-1-1"
-  Monitor2="DP-1-2"
-  Monitor3="eDP-1"
-  -- naughty.notify { text = "Monitor Count: "..screen.count().." Monitor1: ".. Monitor1 }
-else
-  LayoutMode = "laptop"
+
+LayoutMode = "laptop"
+Monitor1=""
+Monitor2=""
+Monitor3=""
+
+local xrandr_output = io.popen("xrandr"):read("*all")
+
+-- Uncomment the following lines if you want to see xrandr output in notifications
+-- naughty.notify({
+--   title = "xrandr Output",
+--   text = xrandr_output,
+--   timeout = 0,
+--   hover_timeout = 4.5,
+-- })
+
+if xrandr_output:find("LVDS%-1") then
+  -- Stealth Bomber
+  naughty.notify { text = "Stealth Detected"}
+  Monitor1="LVDS-1"
+  if xrandr_output:find("VGA%-1") then
+    naughty.notify { text = "VGA"}
+    Monitor1="VGA-1"
+    Monitor3="VGA-1"
+  end
+  if xrandr_output:find("HDMI%-1") then
+    LayoutMode = "desktop"
+    naughty.notify { text = "HDMI"}
+    Monitor2="HDMI-1"
+  end
+elseif xrandr_output:find("eDP%-1") then
+  -- Yoga Thinkpad
+  naughty.notify { text = "Yoga Detected"}
   Monitor1="eDP-1"
   Monitor2="eDP-1"
   Monitor3="eDP-1"
-  -- naughty.notify { text = "Monitor Count: "..screen.count().." Monitor1: ".. Monitor1 }
+  if xrandr_output:find("DP%-1%-1") then
+    naughty.notify { text = "DP-1"}
+    Monitor1="DP-1-1"
+  end
+  if xrandr_output:find("DP%-1%-2") then
+    LayoutMode = "desktop"
+    naughty.notify { text = "DP-2"}
+    Monitor2="DP-1-2"
+  end
 end
+
 -- Variable Definitions }}}
 
 -- {{{ Menu
@@ -743,7 +778,7 @@ awful.rules.rules = {
       end },
 
   { rule = { class = "waterfox-g3" },
-      properties = { screen = Monitor3, tag = "[", switchtotag = false, maximized = false } }
+      properties = { screen = Monitor1, tag = "[", switchtotag = false, maximized = false } }
   -- NOTE: keep ^this^ one last, with no comma at the end
 
   -- }}}
@@ -821,5 +856,9 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- Autostart applications
 -- awful.spawn.with_shell("xfce4-power-manager")
 awful.spawn.with_shell("~/.config/awesome/scripts/autostart.sh")
+
+if ScreenCount>1 then
+  awful.spawn.with_shell("flatpak run org.telegram.desktop")
+end
 
 -- vim:ft=lua:ts=2:sw=2:sts=2:tw=80:et

@@ -6,7 +6,8 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local modkey = "Mod4"
 local altkey = "Mod1"
 
-local terminal = "kitty"
+-- local terminal = "kitty"
+local terminal = "lxterminal"
 -- local editor = os.getenv("EDITOR") or "nvim"
 -- local editor_cmd = terminal .. " -e " .. editor
 
@@ -105,7 +106,10 @@ local globalkeys = gears.table.join(
     {description = "Move Mouse Down", group = "Mousey"}),
 
 
-  awful.key({ modkey, altkey}, "BackSpace", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh bravead"  ) end,
+  -- awful.key({ modkey, altkey}, "BackSpace", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh bravead"  ) end,
+  -- {description = "Kill Brave Ad", group = "Mousey"}),
+
+  awful.key({ modkey }, "BackSpace", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh bravead"  ) end,
   {description = "Kill Brave Ad", group = "Mousey"}),
 
   awful.key({ modkey, altkey}, "\\", function () awful.spawn.with_shell( "~/.config/mybin/mouse-move.sh no-waterfox-update"  ) end,
@@ -152,14 +156,16 @@ local globalkeys = gears.table.join(
   awful.key({ modkey, }, "r", function() awful.screen.focused().mypromptbox:run() end,
     {description = "run prompt", group = "launch"}),
 
-  awful.key({ modkey, }, "s", function () awful.spawn.with_shell( ". ~/.config/rofi/scripts/rofi-apps" ) end,
+  awful.key({ modkey, }, "s", function () awful.spawn.with_shell( "rofi -show combi" ) end,
     {description = "rofi" , group = "launch" }),
 
-  awful.key({ modkey, }, " ", function () awful.spawn( "rofi -show combi drun,window" ) end,
-    {description = "rofi" , group = "launch" }),
+  awful.key({ modkey, altkey }, "s", function () awful.spawn.with_shell( ". ~/.config/rofi/scripts/web_search.sh" ) end,
+    {description = "Log-Out" , group = "system" }),
+
 
   awful.key({ modkey, }, "w", function () awful.spawn( "rofi -show window" ) end,
     {description = "rofi" , group = "launch" }),
+
 
   -- Launching Stuff }}}
 
@@ -210,16 +216,16 @@ local globalkeys = gears.table.join(
 
   --I usually use this terminal for system commands...
   awful.key({ altkey, "Control" }, "Return", function () awful.spawn( "xfce4-terminal --drop-down" ) end,
-    {description = "dropdown terminal" , group = "specialkeys"}),
+    {description = "dropdown terminal" , group = "launch"}),
 
   awful.key({ altkey, "Control" }, "w", function () awful.spawn.with_shell( "feh --randomize --bg-scale --no-xinerama ~/.config/awesome/wallpapers/*"  ) end,
-    {description = "wallpaper", group = "System"}),
+    {description = "wallpaper", group = "system"}),
 
   awful.key({ altkey, "Control" }, "r", awesome.restart,
-    {description = "reload awesome", group = "System"}),
+    {description = "reload awesome", group = "system"}),
 
-  awful.key({ altkey, "Control" }, "l", function () awful.spawn.with_shell( ". ~/.config/rofi/scripts/rofi-power" ) end,
-    {description = "Log-Out" , group = "System" }),
+  awful.key({ altkey, "Control" }, "l", function () awful.spawn.with_shell( ". ~/.config/rofi/scripts/power.sh" ) end,
+    {description = "Log-Out" , group = "system" }),
 
   -- Show/Hide Wibox
   awful.key({ altkey, "Control" }, "b", function ()
@@ -230,24 +236,24 @@ local globalkeys = gears.table.join(
       end
     end
   end,
-  {description = "toggle wibox", group = "System"}),
+  {description = "toggle wibox", group = "system"}),
 
   -- -- Change gaps
   -- awful.key({ altkey, "Control" }, "[", function () lain.useless_gaps_resize(1) end,
-  --   {description = "increment useless gaps", group = "System"}),
+  --   {description = "increment useless gaps", group = "system"}),
   -- awful.key({ altkey, "Control" }, "]", function () lain.useless_gaps_resize(-1) end,
-  --   {description = "decrement useless gaps", group = "System"}),
+  --   {description = "decrement useless gaps", group = "system"}),
 
 
   -- Brightness {{{
   awful.key({ altkey, "Control" }, "Right", function() awful.spawn.with_shell("~/.config/awesome/scripts/bright-up") end,
-      {description = "Brightness Up", group = "System"}),
+      {description = "Brightness Up", group = "system"}),
   awful.key({ altkey, "Control" }, "Left", function() awful.spawn.with_shell("~/.config/awesome/scripts/bright-down") end,
-      {description = "Brightness Down", group = "System"}),
+      {description = "Brightness Down", group = "system"}),
   -- awful.key({ altkey, "Control" }, "Right", function () awful.spawn("xbacklight -inc 10") end,
-  --     {description = "Brightness Up", group = "System"}),
+  --     {description = "Brightness Up", group = "system"}),
   -- awful.key({ altkey, "Control" }, "Left", function () awful.spawn("xbacklight -dec 10") end,
-  --     {description = "Brightness Down", group = "System"}),
+  --     {description = "Brightness Down", group = "system"}),
 
   --}}}
 
@@ -255,16 +261,16 @@ local globalkeys = gears.table.join(
   -- Volume Controls {{{
   -- pactl seemed to go louder...
   -- awful.key({ altkey, "Control" }, "Up", function () awful.spawn("amixer -D pulse sset Master 5%+", false) end,
-  --     {description = "Volume Up", group = "System"}),
+  --     {description = "Volume Up", group = "system"}),
   -- awful.key({ altkey, "Control" }, "Down", function () awful.spawn("amixer -D pulse sset Master 10%-", false) end,
-  --     {description = "Volume Down", group = "System"}),
+  --     {description = "Volume Down", group = "system"}),
 
   awful.key({ altkey, "Control" }, "v", function () awful.spawn("amixer -D pulse sset Master toggle", false) end,
-      {description = "Volume Toggle", group = "System"}),
+      {description = "Volume Toggle", group = "system"}),
   awful.key({ altkey, "Control" }, "Up", function () awful.spawn("pactl -- set-sink-volume 0 +5%", false) end,
-      {description = "Volume Up", group = "System"}),
+      {description = "Volume Up", group = "system"}),
   awful.key({ altkey, "Control" }, "Down", function () awful.spawn("pactl -- set-sink-volume 0 -20%", false) end,
-      {description = "Volume Down", group = "System"}),
+      {description = "Volume Down", group = "system"}),
 
     -- }}}
 
@@ -322,14 +328,8 @@ local globalkeys = gears.table.join(
 
   -- awful.key({ }, "F2", function() menubar.show() end,
   --   {description = "show the menubar", group = "specialkeys"}),
-  -- awful.key({ "Shift" }, "F4", function () awful.spawn( browser1 ) end,
-  --   {description = browser1, group = "specialkeys"}),
-  -- awful.key({ "Shift" }, "F10", function () awful.spawn( "rofi -show drun -fullscreen" ) end,
-  --   {description = "rofi fullscreen" , group = "function keys" }),
-  -- awful.key({ "Shift", }, "F11", function () awful.spawn( "rofi -show drun" ) end,
-  --   {description = "rofi" , group = "function keys" }),
-  -- awful.key({ "Shift", }, "F12", function () awful.spawn( "Xfce4-terminal --drop-down" ) end,
-  --   {description = "dropdown terminal" , group = "specialkeys"}),
+  awful.key({ "Shift", }, "F12", function () awful.spawn( "Xfce4-terminal --drop-down" ) end,
+    {description = "dropdown terminal" , group = "specialkeys"}),
 
   -- Brightness
   awful.key({ }, "XF86MonBrightnessUp", function() awful.spawn.with_shell("~/.config/awesome/scripts/bright-up") end),
@@ -367,16 +367,16 @@ local globalkeys = gears.table.join(
   -- Touch & Monitors
   -- {{{
   awful.key({ modkey, altkey, "Control" }, "t", function () awful.spawn.with_shell( "~/.config/mybin/touchscreen/reset_matrix.sh"  ) end,
-    {description = "touchscreen matrix", group = "System"}),
+    {description = "touchscreen matrix", group = "system"}),
 
   awful.key({ modkey, altkey }, "t", function () awful.spawn.with_shell( "~/.config/mybin/touchscreen/toggle_touch.sh"  ) end,
-    {description = "touchscreen toggle", group = "System"}),
+    {description = "touchscreen toggle", group = "system"}),
 
   awful.key({ altkey, "Control" }, "t", function () awful.spawn.with_shell( "~/.config/mybin/toggle-touchpad.sh"  ) end,
-    {description = "touchpad toggle", group = "System"}),
+    {description = "touchpad toggle", group = "system"}),
 
   awful.key({ altkey, "Control" }, "m", function () awful.spawn.with_shell( "~/.config/mybin/monitor-setup.sh"  ) end,
-    {description = "monitor setup - laptop/desktop mode", group = "System"}),
+    {description = "monitor setup - laptop/desktop mode", group = "system"}),
 
   -- }}}
 
